@@ -1,9 +1,12 @@
 import board as b
 import pygame as pg
+import pathfinders as pf
+from queue import PriorityQueue
 
 def main(window, rows, width):
     ROWS = rows
     WIDTH = width
+    WINDOW = window
     board = b.initialize_board(ROWS, WIDTH)
 
     # STATUS variables
@@ -28,7 +31,8 @@ def main(window, rows, width):
             if pg.mouse.get_pressed():
                 position = pg.mouse.get_pos()
                 row, col = b.mouse_position(position, ROWS, WIDTH)
-                node = board[row][col]
+                if row < ROWS - 1:
+                    node = board[row][col]
 
                 # left click
                 if pg.mouse.get_pressed()[0]:
@@ -53,13 +57,23 @@ def main(window, rows, width):
 
             # when spacebar is pressed, update all of the neighbors
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE and not ALG_STARTED:
-                    # initialize the neighbors for the algorithm
-                    for row in board:
-                        for node in row:
-                            node.update_neighbors(board)
-                                        
+                if event.key == pg.K_c and not ALG_STARTED:
+                    board = b.initialize_board(ROWS, WIDTH)
+                    # STATUS variables
+                    RUNNING = True
+                    ALG_STARTED = False
 
+                    start_node = None
+                    end_node = None
+
+                if event.key == pg.K_SPACE and not ALG_STARTED:
+                    if start_node and end_node:
+                        # initialize the neighbors for the algorithm
+                        for row in board:
+                            for node in row:
+                                node.update_neighbors(board)
+                        pf.a_star(lambda: b.draw_board(WINDOW, board, ROWS, WIDTH), board, start_node, end_node)
+            
     pg.quit()
 
 if __name__ == "__main__":
