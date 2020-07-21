@@ -15,6 +15,7 @@ LIGHT_PURPLE = (218, 180, 250)
 BURNT_ORANGE = (206, 140, 117)
 SALMON = (250, 188, 180)
 GREY = (128, 128, 128)
+LIGHT_GREY = (220, 220, 220)
 TURQOISE = (64, 224, 208)
 
 class Node:
@@ -27,18 +28,30 @@ class Node:
         self.neighbors = []
         self.color = WHITE
         self.total_rows = total_rows
+        self.g = float("inf")
+        self.h = float("inf")
+        self.f = float("inf")
+        self.parent = None
 
         # speed lets us know the speed we can travel to get to 
         # a neighboring node
         if (highway == True):
             self.speed = 60
+            self.color = LIGHT_GREY
         else:
             self.speed = 30
-        
+            self.color = WHITE
+
     # draws the rectangle that represents the node
     def render(self, window):
         pg.draw.rect(window, self.color, (self.x, self.y, self.length, self.length))
     
+    def position(self):
+        return self.row, self.col
+    
+    def cost(self):
+        return 1/self.speed
+
     # nodes are identified by their colors
     def is_start(self):
         return self.color == YELLOW
@@ -59,6 +72,12 @@ class Node:
         self.color = DARK_BLUE
     
     def make_path(self):
+        self.color = DARK_PURPLE
+    
+    def make_open(self):
+        self.color = GREEN
+    
+    def make_closed(self):
         self.color = LIGHT_BLUE
     
     # reset the node to white
@@ -84,10 +103,10 @@ class Node:
         # check the right col
         if self.col < self.total_rows - 1 and not board[self.row][self.col + 1].is_wall():
             self.neighbors.append(board[self.row][self.col + 1])
-        
+
 # draws gridlines on board
 def draw_grid(window, rows, width):
-    length = width // rows
+    length = width // rows 
     for i in range(rows):
         pg.draw.line(window, GREY, (0, i * length), (width, i * length))
     for j in range(rows):
@@ -116,6 +135,11 @@ def draw_board(window, board, rows, width):
 
     draw_grid(window, rows, width)
     pg.display.update()
+
+def reset(window, board, rows, width):
+    board = initialize_board(rows, width)
+    draw_board(window, board, rows, width)
+
 
 # helper method to get row, col corresponding to mouse position
 def mouse_position(position, rows, width):
