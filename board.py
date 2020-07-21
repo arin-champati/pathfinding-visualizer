@@ -136,6 +136,7 @@ def draw_board(window, board, rows, width):
     draw_grid(window, rows, width)
     pg.display.update()
 
+# function to reset the board
 def reset(window, board, rows, width):
     board = initialize_board(rows, width)
     draw_board(window, board, rows, width)
