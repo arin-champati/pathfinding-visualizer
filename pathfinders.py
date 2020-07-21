@@ -3,7 +3,7 @@ import pygame as pg
 import board
 from board import Node
 
-
+# manhattan heuristic
 def manhattan(node_1, node_2):
     point_1 = node_1.position()
     point_2 = node_2.position()
@@ -14,6 +14,7 @@ def manhattan(node_1, node_2):
     cost = node_1.cost()
     return cost + (dx + dy)
 
+# once path is found, use this to find shortest
 def reconstruct_path(start_node, current, draw):
     while (current.parent != start_node):
         current = current.parent

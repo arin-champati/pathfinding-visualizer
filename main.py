@@ -55,8 +55,9 @@ def main(window, rows, width):
                     if node == end_node:
                         end_node = None
 
-            # when spacebar is pressed, update all of the neighbors
             if event.type == pg.KEYDOWN:
+
+                # if c is pressed, restart the whole board
                 if event.key == pg.K_c and not ALG_STARTED:
                     board = b.initialize_board(ROWS, WIDTH)
                     # STATUS variables
@@ -66,6 +67,8 @@ def main(window, rows, width):
                     start_node = None
                     end_node = None
 
+                # when spacebar is pressed, update all of the neighbors
+                # and run the algorithm
                 if event.key == pg.K_SPACE and not ALG_STARTED:
                     if start_node and end_node:
                         # initialize the neighbors for the algorithm
