@@ -4,39 +4,18 @@ import pathfinders as pf
 from queue import PriorityQueue
 import cProfile
 import time
+from copy import deepcopy
+from pygame.locals import *
+import sys
 
-pg.init()
-
-LIGHT_BLUE = (102, 140, 191)
-DARK_BLUE = (41, 65, 97)
 WHITE = (255, 255, 255)
-
-# render text objects
-def text_objects(text, font, color):
-    text_surface = font.render(text, True, color)
-    return text_surface, text_surface.get_rect()
-
-# create a button with specified macros
-def create_button(window, action, font_size, text, active_color, inactive_color, x, y, w, h):
-    mouse = pg.mouse.get_pos()
-
-    if x < mouse[0] < x + w and y < mouse[1] < y + h:
-        pg.draw.rect(window, active_color, (x, y, w, h))
-        if pg.mouse.get_pressed()[0]:
-            result = action()
-            return result
-    else:
-        pg.draw.rect(window, inactive_color, (x, y, w, h))
-
-    small_text = pg.font.Font('freesansbold.ttf', int(font_size))
-    text_surf, text_rect = text_objects(text, small_text, WHITE)
-    text_rect.center = ((x + (w/2), y + (h / 2)))
-    window.blit(text_surf, text_rect)
-
-    return True
+LIGHTER_BLUE = (102, 140, 191)
+DARK_BLUE = (41, 65, 97)
 
 # creates an intro screen that shows for a max of 10 seconds
 def start_screen(window, width, button_offset):
+    pg.display.set_caption('Pathfinder')
+
     INTRO = True
 
     while INTRO:
@@ -50,7 +29,7 @@ def start_screen(window, width, button_offset):
         # create the main screen and text
         window.fill(WHITE)
         large_text = pg.font.Font('freesansbold.ttf', int(width/7))
-        text_surf, text_rect = text_objects("Pathfinder", large_text, DARK_BLUE)
+        text_surf, text_rect = b.text_objects("Pathfinder", large_text, DARK_BLUE)
         text_rect.center = ((width/2),(width/2))
         window.blit(text_surf, text_rect)
 
@@ -63,19 +42,28 @@ def start_screen(window, width, button_offset):
         x = (width/ 2) - (w/2)
         y = (width/2) - (h/2) + button_offset
 
-        INTRO = create_button(window, lambda: False, width/24, "START", LIGHT_BLUE, DARK_BLUE, x, y, w, h)
+        # return true if button is not pressed
+        def ret_true():
+            return True
+
+        # return false so that start screen exits
+        def ret_false():
+            return False
+    
+        INTRO = b.create_button(window, lambda: ret_true(), lambda: ret_false(), width/24, "START", LIGHTER_BLUE, DARK_BLUE, x, y, w, h)
 
         pg.display.update()
-        pg.time.Clock().tick(10)
-            
-
+        pg.time.Clock().tick(120)
 
 def main(window, rows, width, height):
+    pg.display.set_caption('Pathfinder')
+
     ROWS = rows
     WIDTH = width
     HEIGHT = height
     WINDOW = window
     board = b.initialize_board(ROWS, WIDTH, HEIGHT)
+    old_board = deepcopy(board)
 
     # STATUS variables
     RUNNING = True
@@ -98,7 +86,7 @@ def main(window, rows, width, height):
             if pg.mouse.get_pressed():
                 position = pg.mouse.get_pos()
                 row, col = b.mouse_position(position, ROWS, WIDTH, HEIGHT)
-                if row < ROWS - 1:
+                if row < ROWS:
                     node = board[row][col]
 
                 # left click
@@ -124,9 +112,23 @@ def main(window, rows, width, height):
 
             if event.type == pg.KEYDOWN:
 
-                # if c is pressed, restart the whole board
+                # if r is pressed, recreate the whole board
                 if event.key == pg.K_r and not ALG_STARTED:
                     board = b.initialize_board(ROWS, WIDTH, HEIGHT)
+                    old_board = deepcopy(board)
+
+                    # STATUS variables
+                    RUNNING = True
+                    ALG_STARTED = False
+
+                    start_node = None
+                    end_node = None
+                
+                # if c is pressed, clear the board
+                if event.key == pg.K_c and not ALG_STARTED:
+                    board = old_board
+                    old_board = deepcopy(board)
+
                     # STATUS variables
                     RUNNING = True
                     ALG_STARTED = False
@@ -142,8 +144,13 @@ def main(window, rows, width, height):
                         for row in board:
                             for node in row:
                                 node.update_neighbors(board)
-                        pf.a_star(lambda: b.draw_board(WINDOW, board, ROWS, WIDTH, HEIGHT), board, start_node, end_node)
-            
+                        pf.a_star(lambda: b.draw_board(WINDOW, board, ROWS, WIDTH, HEIGHT), board, start_node, end_node, WIDTH, "speed")
+                
+                if event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    quit()
+                    sys.exit()
+       
     pg.quit()
     quit()
 
@@ -155,7 +162,13 @@ if __name__ == "__main__":
     ROWS = 20
     WIDTH = 800
     HEIGHT = 825
-    WINDOW = pg.display.set_mode((WIDTH, HEIGHT))
+
+    pg.init()
+    flags = DOUBLEBUF | RESIZABLE
+    WINDOW = pg.display.set_mode((WIDTH, HEIGHT), flags)
+    WINDOW.set_alpha(None)
+
+    #WINDOW = pg.display.set_mode((WIDTH, HEIGHT))
 
     BUTTON_OFFSET = 150
     start_screen(WINDOW, WIDTH, BUTTON_OFFSET)

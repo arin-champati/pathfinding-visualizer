@@ -6,6 +6,7 @@ import random
 RED = (255, 0, 0)
 GREEN = (163, 197, 199)
 LIGHT_BLUE = (180, 210, 250)
+LIGHTER_BLUE = (102, 140, 191)
 DARK_BLUE = (41, 65, 97)
 YELLOW = (248, 236, 194)
 WHITE = (255, 255, 255)
@@ -29,26 +30,26 @@ class Node:
         self.color = WHITE
         self.total_rows = total_rows
         self.g = float("inf")
-        self.h = float("inf")
         self.f = float("inf")
         self.parent = None
 
         # speed lets us know the speed we can travel to get to 
         # a neighboring node
         if (highway == True):
-            self.speed = 60
+            self.speed = 70
             self.color = LIGHT_GREY
         else:
-            self.speed = 30
+            self.speed = 35
             self.color = WHITE
 
     # draws the rectangle that represents the node
     def render(self, window):
-        pg.draw.rect(window, self.color, (self.x, self.y, self.length, self.length))
+        return pg.draw.rect(window, self.color, (self.x, self.y, self.length, self.length))
     
     def position(self):
         return self.row, self.col
     
+    # the cost is time
     def cost(self):
         return 1/self.speed
 
@@ -120,6 +121,7 @@ def initialize_board(rows, width, height):
     length = width // rows
     diff = height - width
     board = []
+    random.seed(1)
     for i in range(rows):
         board.append([])
         for j in range(rows):
@@ -138,7 +140,7 @@ def draw_board(window, board, rows, width, height):
 
     draw_grid(window, rows, width, height)
     pg.display.update()
-    
+    pg.time.Clock().tick(120)
 
 # function to reset the board
 def reset(window, board, rows, width, height):
@@ -149,7 +151,6 @@ def reset(window, board, rows, width, height):
 # helper method to get row, col corresponding to mouse position
 def mouse_position(position, rows, width, height):
     length = width // rows
-    vert_length = height // rows
     
     y, x = position
     diff = height - width
@@ -161,3 +162,27 @@ def mouse_position(position, rows, width, height):
     col = x // length
 
     return row, col
+
+# get the parameters needed to write text (surface and rectangle)
+def text_objects(text, font, color):
+    text_surface = font.render(text, True, color)
+    return text_surface, text_surface.get_rect()
+
+# create a button with specified macros
+def create_button(window, default, action, font_size, text, active_color, inactive_color, x, y, w, h):
+    mouse = pg.mouse.get_pos()
+
+    if x < mouse[0] < x + w and y < mouse[1] < y + h:
+        pg.draw.rect(window, active_color, (x, y, w, h))
+        if pg.mouse.get_pressed()[0]:
+            result = action()
+            return result
+    else:
+        pg.draw.rect(window, inactive_color, (x, y, w, h))
+
+    small_text = pg.font.Font('freesansbold.ttf', int(font_size))
+    text_surf, text_rect = text_objects(text, small_text, WHITE)
+    text_rect.center = ((x + (w/2), y + (h / 2)))
+    window.blit(text_surf, text_rect)
+
+    return default()
