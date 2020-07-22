@@ -105,7 +105,6 @@ def initialize_board(rows, width, height):
     length = width // rows
     diff = height - width
     board = []
-    random.seed(1)
     for i in range(rows):
         board.append([])
         for j in range(rows):
@@ -115,14 +114,15 @@ def initialize_board(rows, width, height):
     return board
 
 # draw a white board with all of the nodes and grid lines
-def draw_board(window, board, rows, width, height):
-    window.fill(colors.WHITE)
+def draw_board(window, menu, board, rows, width, height):
+    window.fill(colors.DARKER_BLUE)
 
     for row in board:
         for node in row:
             node.render(window)
 
     draw_grid(window, rows, width, height)
+    menu()
     pg.display.update()
     pg.time.Clock().tick(120)
 
@@ -146,27 +146,3 @@ def mouse_position(position, rows, width, height):
     col = x // length
 
     return row, col
-
-# get the parameters needed to write text (surface and rectangle)
-def text_objects(text, font, color):
-    text_surface = font.render(text, True, color)
-    return text_surface, text_surface.get_rect()
-
-# create a button with specified macros
-def create_button(window, default, action, font_size, text, active_color, inactive_color, x, y, w, h):
-    mouse = pg.mouse.get_pos()
-
-    if x < mouse[0] < x + w and y < mouse[1] < y + h:
-        pg.draw.rect(window, active_color, (x, y, w, h))
-        if pg.mouse.get_pressed()[0]:
-            result = action()
-            return result
-    else:
-        pg.draw.rect(window, inactive_color, (x, y, w, h))
-
-    small_text = pg.font.Font('freesansbold.ttf', int(font_size))
-    text_surf, text_rect = text_objects(text, small_text, colors.WHITE)
-    text_rect.center = ((x + (w/2), y + (h / 2)))
-    window.blit(text_surf, text_rect)
-
-    return default()

@@ -8,6 +8,8 @@ from copy import deepcopy
 from pygame.locals import *
 import sys
 import colors
+from nav_bar import menu
+from button import create_button
 
 # creates an intro screen that shows for a max of 10 seconds
 def start_screen(window, width, button_offset):
@@ -58,43 +60,10 @@ def start_screen(window, width, button_offset):
         def ret_false():
             return False
     
-        INTRO = b.create_button(window, lambda: ret_true(), lambda: ret_false(), width/24, "START", colors.LIGHTER_BLUE, colors.DARK_BLUE, x, y, w, h)
+        INTRO = create_button(window, lambda: ret_true(), lambda: ret_false(), width/24, "START", colors.LIGHTER_BLUE, colors.DARK_BLUE, x, y, w, h)
 
         pg.display.update()
         pg.time.Clock().tick(120)
-
-def alg_bar(window, dropdown, width, height):
-    a_star = False
-    dijkstra = False
-
-    # return true if button is not pressed
-    def ret_true():
-        return True
-
-    # return false so that start screen exits
-    def ret_false():
-        return False
-
-    # starting coordinates of dropdown menu
-    x = 0
-    w = width / 5
-    y = 0
-    h = height - width
-
-    if dropdown == False:
-        dropdown = b.create_button(window, lambda: ret_false(), lambda: ret_true(), width/48, "Algorithms", colors.LIGHTER_BLUE, colors.DARK_BLUE, x, y, w, h)
-
-    elif dropdown == True:
-        b.create_button(window, lambda: ret_false(), lambda: ret_true(), width/48, "Algorithms", colors.LIGHTER_BLUE, colors.DARK_BLUE, x, y, w, h)
-        a_star = b.create_button(window, lambda: ret_true(), lambda: ret_false(), width/48, "A Star", colors.LIGHTER_BLUE, colors.DARK_BLUE, x, y + h, w, h)
-
-    pg.display.update((x, y, w, h))
-    pg.time.Clock().tick(120)
-
-    return dropdown, a_star, dijkstra
-
-def metric_bar(window, dropdown, width, height):
-    
 
 def main(window, rows, width, height):
     pg.display.set_caption('Pathfinder')
@@ -109,15 +78,29 @@ def main(window, rows, width, height):
     # STATUS variables
     RUNNING = True
     ALG_STARTED = False
+
+    # algorith dropdown
     ALG_DROPDOWN = False
     A_STAR = False
     DIJKSTRA = False
 
+    # metric dropdown
+    METRIC_DROPDOWN = False
+    DISTANCE = False
+    TIME = False
+
     start_node = None
     end_node = None
     while RUNNING:
-        b.draw_board(WINDOW, board, ROWS, WIDTH, HEIGHT)
-        ALG_DROPDOWN, A_STAR, DIJKSTRA = alg_bar(WINDOW, ALG_DROPDOWN, WIDTH, HEIGHT)
+        pg.time.Clock().tick(120)
+
+        # draw the GUI
+        b.draw_board(WINDOW, lambda: menu(WINDOW, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, 
+        DISTANCE, TIME, WIDTH, HEIGHT), board, ROWS, WIDTH, HEIGHT)
+
+        # get the states of important STATUS variables
+        ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, DISTANCE, TIME = menu(WINDOW, ALG_DROPDOWN, 
+        A_STAR, DIJKSTRA, METRIC_DROPDOWN, DISTANCE, TIME, WIDTH, HEIGHT)
 
         for event in pg.event.get():
             # quit if prompted
@@ -129,13 +112,20 @@ def main(window, rows, width, height):
             if ALG_STARTED:
                 continue
 
-            if pg.mouse.get_pressed() and ALG_DROPDOWN != True:
+            # only get position of mouse if pressed and the menus are closed
+            if pg.mouse.get_pressed() and (ALG_DROPDOWN != True and METRIC_DROPDOWN != True):
                 position = pg.mouse.get_pos()
+                _, y = position
+
+                # make sure we are not in the navigation area
+                if (y < (HEIGHT - WIDTH)):
+                    continue
+                
                 row, col = b.mouse_position(position, ROWS, WIDTH, HEIGHT)
-                if row < ROWS:
+                if row < ROWS and col < ROWS:
                     node = board[row][col]
 
-                # left click
+                # LEFT click
                 if pg.mouse.get_pressed()[0]:
                     if not start_node and node != end_node:
                         start_node = node
@@ -148,7 +138,7 @@ def main(window, rows, width, height):
                     elif node != start_node and node != end_node:
                         node.make_wall()
                 
-                # right click
+                # RIGHT click
                 if pg.mouse.get_pressed()[2]:
                     node.undo()
                     if node == start_node:
@@ -182,23 +172,29 @@ def main(window, rows, width, height):
                     start_node = None
                     end_node = None
 
-                # when spacebar is pressed, update all of the neighbors
-                # and run the algorithm
-                if event.key == pg.K_s and not ALG_STARTED:
+                # RUN A STAR
+
+                # when key s is pressed or space is pressed (and we have selected a star as our algorithm with time as metric (default to this setting if nothing selected))
+                # update the neighbors and run the algorithm
+                if (event.key == pg.K_s or (event.key == pg.K_SPACE and (A_STAR == True or DIJKSTRA == False) and (TIME == True or (DISTANCE == False and TIME == False)))) and not ALG_STARTED:
                     if start_node and end_node:
                         # initialize the neighbors for the algorithm
                         for row in board:
                             for node in row:
                                 node.update_neighbors(board)
-                        pf.a_star(lambda: b.draw_board(WINDOW, board, ROWS, WIDTH, HEIGHT), board, start_node, end_node, WIDTH, "speed")
+                        pf.a_star(lambda: b.draw_board(WINDOW, lambda: menu(WINDOW, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, DISTANCE, TIME, WIDTH, HEIGHT), 
+                        board, ROWS, WIDTH, HEIGHT), board, start_node, end_node, WIDTH, "speed")
                 
-                if event.key == pg.K_d and not ALG_STARTED:
+                # when key a is pressed or space is pressed (and we have selected a star as our algorithm with distance as metric)
+                # update the neighbors and run the algorithm
+                if (event.key == pg.K_a or (event.key == pg.K_SPACE and (A_STAR == True or DIJKSTRA == False) and DISTANCE == True)) and not ALG_STARTED:
                     if start_node and end_node:
                         # initialize the neighbors for the algorithm
                         for row in board:
                             for node in row:
                                 node.update_neighbors(board)
-                        pf.a_star(lambda: b.draw_board(WINDOW, board, ROWS, WIDTH, HEIGHT), board, start_node, end_node, WIDTH, "distance")
+                        pf.a_star(lambda: b.draw_board(WINDOW,lambda: menu(WINDOW, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, DISTANCE, TIME, WIDTH, HEIGHT), 
+                        board, ROWS, WIDTH, HEIGHT), board, start_node, end_node, WIDTH, "distance")
                 
                 # exit fullscreen mode
                 if event.key == pg.K_ESCAPE:
@@ -218,7 +214,9 @@ if __name__ == "__main__":
     # window sizes. These are what I have found to be
     # the most visually pleasing settings.
 
-    ROWS = 20
+    # Note: height must be greater than width
+
+    ROWS = 25
     WIDTH = 800
     HEIGHT = 825
 
