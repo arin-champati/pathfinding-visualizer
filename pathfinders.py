@@ -29,6 +29,9 @@ def speed(node_1, node_2, width):
     dy = (y1 - y2)
     dy *=dy
 
+    dx = abs(x1 - x2)
+    dy = abs(y1 - y2)
+
     distance = dx + dy
 
     # break ties as well
