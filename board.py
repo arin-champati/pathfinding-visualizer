@@ -19,11 +19,11 @@ LIGHT_GREY = (220, 220, 220)
 TURQOISE = (64, 224, 208)
 
 class Node:
-    def __init__(self, row, col, length, highway, total_rows):
+    def __init__(self, row, col, diff, length, highway, total_rows):
         self.row = row
         self.col = col
-        self.x = row * length
-        self.y = col * length
+        self.x = row * length 
+        self.y = col * length + diff
         self.length = length
         self.neighbors = []
         self.color = WHITE
@@ -105,47 +105,57 @@ class Node:
             self.neighbors.append(board[self.row][self.col + 1])
 
 # draws gridlines on board
-def draw_grid(window, rows, width):
+def draw_grid(window, rows, width, height):
     length = width // rows 
+    begin = height - width
+
     for i in range(rows):
-        pg.draw.line(window, GREY, (0, i * length), (width, i * length))
+        pg.draw.line(window, GREY, (0, i * length + begin), (width, i * length + begin))
     for j in range(rows):
-        pg.draw.line(window, GREY, (j * length, 0), (j * length, width)) 
+        pg.draw.line(window, GREY, (j * length, begin), (j * length, height)) 
 
 # initializes a row x row board with nodes of correct width and random 
 # highway states
-def initialize_board(rows, width):
+def initialize_board(rows, width, height):
     length = width // rows
+    diff = height - width
     board = []
     for i in range(rows):
         board.append([])
         for j in range(rows):
-            node = Node(i, j, length, bool(random.getrandbits(1)),rows)
+            node = Node(i, j, diff, length, bool(random.getrandbits(1)),rows)
             board[i].append(node)
     
     return board
 
 # draw a white board with all of the nodes and grid lines
-def draw_board(window, board, rows, width):
+def draw_board(window, board, rows, width, height):
     window.fill(WHITE)
 
     for row in board:
         for node in row:
             node.render(window)
 
-    draw_grid(window, rows, width)
+    draw_grid(window, rows, width, height)
     pg.display.update()
+    
 
 # function to reset the board
-def reset(window, board, rows, width):
-    board = initialize_board(rows, width)
-    draw_board(window, board, rows, width)
+def reset(window, board, rows, width, height):
+    board = initialize_board(rows, width, height)
+    draw_board(window, board, rows, width, height)
 
 
 # helper method to get row, col corresponding to mouse position
-def mouse_position(position, rows, width):
+def mouse_position(position, rows, width, height):
     length = width // rows
+    vert_length = height // rows
+    
     y, x = position
+    diff = height - width
+
+    y = y
+    x = x - diff
     
     row = y // length
     col = x // length
