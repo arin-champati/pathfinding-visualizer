@@ -1,23 +1,7 @@
 import math
 import pygame as pg
 import random
-
-# color codes
-RED = (255, 0, 0)
-GREEN = (163, 197, 199)
-LIGHT_BLUE = (180, 210, 250)
-LIGHTER_BLUE = (102, 140, 191)
-DARK_BLUE = (41, 65, 97)
-YELLOW = (248, 236, 194)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-DARK_PURPLE = (71, 41, 97)
-LIGHT_PURPLE = (218, 180, 250)
-BURNT_ORANGE = (206, 140, 117)
-SALMON = (250, 188, 180)
-GREY = (128, 128, 128)
-LIGHT_GREY = (220, 220, 220)
-TURQOISE = (64, 224, 208)
+import colors
 
 class Node:
     def __init__(self, row, col, diff, length, highway, total_rows):
@@ -27,7 +11,7 @@ class Node:
         self.y = col * length + diff
         self.length = length
         self.neighbors = []
-        self.color = WHITE
+        self.color = colors.WHITE
         self.total_rows = total_rows
         self.g = float("inf")
         self.f = float("inf")
@@ -37,10 +21,10 @@ class Node:
         # a neighboring node
         if (highway == True):
             self.speed = 70
-            self.color = LIGHT_GREY
+            self.color = colors.LIGHT_GREY
         else:
             self.speed = 35
-            self.color = WHITE
+            self.color = colors.WHITE
 
     # draws the rectangle that represents the node
     def render(self, window):
@@ -55,35 +39,35 @@ class Node:
 
     # nodes are identified by their colors
     def is_start(self):
-        return self.color == YELLOW
+        return self.color == colors.YELLOW
 
     def make_start(self):
-        self.color = YELLOW
+        self.color = colors.YELLOW
     
     def is_end(self):
-        return self.color == LIGHT_PURPLE
+        return self.color == colors.LIGHT_PURPLE
 
     def make_end(self):
-        self.color = LIGHT_PURPLE
+        self.color = colors.LIGHT_PURPLE
 
     def is_wall(self):
-        return self.color == DARK_BLUE
+        return self.color == colors.DARK_BLUE
         
     def make_wall(self):
-        self.color = DARK_BLUE
+        self.color = colors.DARK_BLUE
     
     def make_path(self):
-        self.color = DARK_PURPLE
+        self.color = colors.DARK_PURPLE
     
     def make_open(self):
-        self.color = GREEN
+        self.color = colors.GREEN
     
     def make_closed(self):
-        self.color = LIGHT_BLUE
+        self.color = colors.LIGHT_BLUE
     
     # reset the node to white
     def undo(self):
-        self.color = WHITE
+        self.color = colors.WHITE
     
     # update the neighbors for given node, excluding walls
     def update_neighbors(self, board):
@@ -111,9 +95,9 @@ def draw_grid(window, rows, width, height):
     begin = height - width
 
     for i in range(rows):
-        pg.draw.line(window, GREY, (0, i * length + begin), (width, i * length + begin))
+        pg.draw.line(window, colors.GREY, (0, i * length + begin), (width, i * length + begin))
     for j in range(rows):
-        pg.draw.line(window, GREY, (j * length, begin), (j * length, height)) 
+        pg.draw.line(window, colors.GREY, (j * length, begin), (j * length, height)) 
 
 # initializes a row x row board with nodes of correct width and random 
 # highway states
@@ -132,7 +116,7 @@ def initialize_board(rows, width, height):
 
 # draw a white board with all of the nodes and grid lines
 def draw_board(window, board, rows, width, height):
-    window.fill(WHITE)
+    window.fill(colors.WHITE)
 
     for row in board:
         for node in row:
@@ -181,7 +165,7 @@ def create_button(window, default, action, font_size, text, active_color, inacti
         pg.draw.rect(window, inactive_color, (x, y, w, h))
 
     small_text = pg.font.Font('freesansbold.ttf', int(font_size))
-    text_surf, text_rect = text_objects(text, small_text, WHITE)
+    text_surf, text_rect = text_objects(text, small_text, colors.WHITE)
     text_rect.center = ((x + (w/2), y + (h / 2)))
     window.blit(text_surf, text_rect)
 

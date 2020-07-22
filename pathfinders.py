@@ -106,7 +106,9 @@ def a_star(draw_path, grid, start_node, end_node, width, heuristic):
                     index += 1
                     open_list.put((neighbor.f, index, neighbor))
                     open_list_tracker.add(neighbor)
-                    neighbor.make_open()
+                    # don't color the end node
+                    if neighbor != end_node:
+                        neighbor.make_open()
 
         draw_path()
 
