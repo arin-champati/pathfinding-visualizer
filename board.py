@@ -1,8 +1,9 @@
 import math
 import pygame as pg
 import random
-import colors
+from config import Colors, Speeds
 
+# Node represents one square on the board
 class Node:
     def __init__(self, row, col, diff, length, highway, total_rows):
         self.row = row
@@ -11,20 +12,21 @@ class Node:
         self.y = col * length + diff
         self.length = length
         self.neighbors = []
-        self.color = colors.WHITE
+        self.color = Colors.WHITE
         self.total_rows = total_rows
         self.g = float("inf")
         self.f = float("inf")
         self.parent = None
+        self.highway = highway
 
         # speed lets us know the speed we can travel to get to 
         # a neighboring node
         if (highway == True):
-            self.speed = 70
-            self.color = colors.LIGHT_GREY
+            self.speed = Speeds.HIGHWAY_SPEED
+            self.color = Colors.LIGHT_GREY
         else:
-            self.speed = 35
-            self.color = colors.WHITE
+            self.speed = Speeds.LOCAL_SPEED
+            self.color = Colors.WHITE
 
     # draws the rectangle that represents the node
     def render(self, window):
@@ -34,40 +36,43 @@ class Node:
         return self.row, self.col
     
     # the cost is time
-    def cost(self):
+    def time(self):
         return 1/self.speed
 
-    # nodes are identified by their colors
+    # nodes are identified by their color
     def is_start(self):
-        return self.color == colors.YELLOW
+        return self.color == Colors.YELLOW
 
     def make_start(self):
-        self.color = colors.YELLOW
+        self.color = Colors.YELLOW
     
     def is_end(self):
-        return self.color == colors.LIGHT_PURPLE
+        return self.color == Colors.LIGHT_PURPLE
 
     def make_end(self):
-        self.color = colors.LIGHT_PURPLE
+        self.color = Colors.LIGHT_PURPLE
 
     def is_wall(self):
-        return self.color == colors.DARK_BLUE
+        return self.color == Colors.DARK_BLUE
         
     def make_wall(self):
-        self.color = colors.DARK_BLUE
+        self.color = Colors.DARK_BLUE
     
     def make_path(self):
-        self.color = colors.DARK_PURPLE
+        self.color = Colors.DARK_PURPLE
     
     def make_open(self):
-        self.color = colors.GREEN
+        self.color = Colors.GREEN
     
     def make_closed(self):
-        self.color = colors.LIGHT_BLUE
+        self.color = Colors.LIGHT_BLUE
     
     # reset the node to white
     def undo(self):
-        self.color = colors.WHITE
+        if self.highway == True:
+            self.color = Colors.LIGHT_GREY
+        elif self.highway == False:
+            self.color = Colors.WHITE
     
     # update the neighbors for given node, excluding walls
     def update_neighbors(self, board):
@@ -95,9 +100,9 @@ def draw_grid(window, rows, width, height):
     begin = height - width
 
     for i in range(rows):
-        pg.draw.line(window, colors.GREY, (0, i * length + begin), (width, i * length + begin))
+        pg.draw.line(window, Colors.GREY, (0, i * length + begin), (width, i * length + begin))
     for j in range(rows):
-        pg.draw.line(window, colors.GREY, (j * length, begin), (j * length, height)) 
+        pg.draw.line(window, Colors.GREY, (j * length, begin), (j * length, height)) 
 
 # initializes a row x row board with nodes of correct width and random 
 # highway states
@@ -113,9 +118,9 @@ def initialize_board(rows, width, height):
     
     return board
 
-# draw a white board with all of the nodes and grid lines
+# draw board with all of the nodes, grid lines, and also menu bar
 def draw_board(window, menu, board, rows, width, height):
-    window.fill(colors.DARKER_BLUE)
+    window.fill(Colors.DARKER_BLUE)
 
     for row in board:
         for node in row:
@@ -131,7 +136,6 @@ def reset(window, board, rows, width, height):
     board = initialize_board(rows, width, height)
     draw_board(window, board, rows, width, height)
 
-
 # helper method to get row, col corresponding to mouse position
 def mouse_position(position, rows, width, height):
     length = width // rows
@@ -139,7 +143,6 @@ def mouse_position(position, rows, width, height):
     y, x = position
     diff = height - width
 
-    y = y
     x = x - diff
     
     row = y // length
