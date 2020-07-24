@@ -8,7 +8,7 @@ from copy import deepcopy
 from config import Speeds
 
 # manhattan heuristic
-def manhattan(node_1, node_2, width):
+def __manhattan(node_1, node_2, width):
     point_1 = node_1.position()
     point_2 = node_2.position()
     x1, y1 = point_1
@@ -19,7 +19,7 @@ def manhattan(node_1, node_2, width):
     return (dx + dy) * (1 + 1/(width*width))
 
 # time heuristic
-def time(node_1, node_2, width):
+def __time(node_1, node_2, width):
     point_1 = node_1.position()
     point_2 = node_2.position()
     x1, y1 = point_1
@@ -42,6 +42,7 @@ def time(node_1, node_2, width):
     # break ties as well
     return (distance / avg_speed) * (1 + ((1/ max_speed) / (width * width)))
 
+
 # once path is found, use this to find shortest
 def reconstruct_path(start_node, current, draw_path):
     speed = 0
@@ -52,19 +53,18 @@ def reconstruct_path(start_node, current, draw_path):
         current.make_path()
         speed += current.speed
         distance += 1
-        
-    print(f"Time: {distance / speed}, Distance: {distance}")
-    
+            
     draw_path()
+    return (distance / speed) * 10, distance
 
 # all of these functions will take in as the first argument
 # an ambiguous function named draw(), which updates the window
 def a_star(draw_path, start_node, end_node, width, heuristic):
     index = 0
     if heuristic == "time":
-        function1 = partial(time, start_node, end_node, width)
+        function1 = partial(__time, start_node, end_node, width)
     elif heuristic == "distance":
-        function1 = partial(manhattan, start_node, end_node, width)
+        function1 = partial(__manhattan, start_node, end_node, width)
     
     # min priority queue to get node with min f constant time
     open_list = PriorityQueue()
@@ -86,9 +86,9 @@ def a_star(draw_path, start_node, end_node, width, heuristic):
 
         # if we have found the destination, render the path
         if current == end_node:
-            reconstruct_path(start_node, end_node, draw_path)
+            time, distance = reconstruct_path(start_node, end_node, draw_path)
             end_node.make_end()
-            return True
+            return True, time, distance
 
         # check all of the neighbors and see if there are any
         # shorter paths to those neighbors
@@ -102,9 +102,9 @@ def a_star(draw_path, start_node, end_node, width, heuristic):
             # update the results
             if temp_g_score < neighbor.g:
                 if heuristic is "time":
-                    function2 = partial(time, neighbor, end_node, width)
+                    function2 = partial(__time, neighbor, end_node, width)
                 elif heuristic is "distance":
-                    function2 = partial(manhattan, neighbor, end_node, width)
+                    function2 = partial(__manhattan, neighbor, end_node, width)
 
                 neighbor.parent = current
                 neighbor.g = temp_g_score
@@ -123,4 +123,4 @@ def a_star(draw_path, start_node, end_node, width, heuristic):
         if current != start_node:
             current.make_closed()
 
-    return False
+    return False, time, distance
