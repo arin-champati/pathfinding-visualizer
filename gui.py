@@ -92,14 +92,18 @@ def main(window, rows, width, height):
 
     # metric dropdown
     METRIC_DROPDOWN = False
-    DISTANCE = False
-    TIME = False
+    DISTANCE_METRIC = False
+    TIME_METRIC = False
 
     # board dropdown
     BOARD_DROPDOWN = False
     NEW = False
     ERASE = False
     RESET = False
+
+    # results
+    TIME = 0
+    DISTANCE = 0
 
     start_node = None
     end_node = None
@@ -109,13 +113,13 @@ def main(window, rows, width, height):
 
         # draw the GUI
         draw = partial(b.draw_board, WINDOW, lambda: menu(WINDOW, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, 
-        DISTANCE, TIME, BOARD_DROPDOWN, NEW, ERASE, RESET, WIDTH, HEIGHT), board, ROWS, WIDTH, HEIGHT)
+        DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE, WIDTH, HEIGHT), board, ROWS, WIDTH, HEIGHT)
 
         draw()
 
         # get the states of important STATUS variables
-        ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, DISTANCE, TIME, BOARD_DROPDOWN, NEW, ERASE, RESET = menu(WINDOW, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, 
-        DISTANCE, TIME, BOARD_DROPDOWN, NEW, ERASE, RESET, WIDTH, HEIGHT)
+        ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE = menu(WINDOW, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, 
+        DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE, WIDTH, HEIGHT)
 
         for event in pg.event.get():
             # quit if prompted
@@ -204,7 +208,7 @@ def main(window, rows, width, height):
 
             # when key s is pressed or space is pressed (and we have selected a star as our algorithm with time as metric (default to this setting if nothing selected))
             # update the neighbors and run the algorithm
-            if (event.key == pg.K_s or (event.key == pg.K_SPACE and (A_STAR == True or DIJKSTRA == False) and (TIME == True or (DISTANCE == False and TIME == False)))) and not ALG_STARTED and not ALG_FINISHED:
+            if (event.key == pg.K_s or (event.key == pg.K_SPACE and (A_STAR == True or DIJKSTRA == False) and (TIME_METRIC == True or (DISTANCE_METRIC == False and TIME_METRIC == False)))) and not ALG_STARTED and not ALG_FINISHED:
                 boundary_board = deepcopy(board)
 
                 if start_node and end_node:
@@ -212,11 +216,11 @@ def main(window, rows, width, height):
                     for row in board:
                         for node in row:
                             node.update_neighbors(board)
-                    ALG_FINISHED = pf.a_star(lambda: draw(), start_node, end_node, WIDTH, "time")
+                    ALG_FINISHED, TIME, DISTANCE = pf.a_star(lambda: draw(), start_node, end_node, WIDTH, "time")
             
             # when key a is pressed or space is pressed (and we have selected a star as our algorithm with distance as metric)
             # update the neighbors and run the algorithm
-            if (event.key == pg.K_a or (event.key == pg.K_SPACE and (A_STAR == True or DIJKSTRA == False) and DISTANCE == True)) and not ALG_STARTED:
+            if (event.key == pg.K_a or (event.key == pg.K_SPACE and (A_STAR == True or DIJKSTRA == False) and DISTANCE_METRIC == True)) and not ALG_STARTED:
                 if not ALG_FINISHED:
                     boundary_board = deepcopy(board)
 
@@ -225,7 +229,7 @@ def main(window, rows, width, height):
                         for row in board:
                             for node in row:
                                 node.update_neighbors(board)
-                        ALG_FINISHED = pf.a_star(lambda: draw(), start_node, end_node, WIDTH, "distance")
+                        ALG_FINISHED, TIME, DISTANCE = pf.a_star(lambda: draw(), start_node, end_node, WIDTH, "distance")
 
        
     pg.quit()
@@ -238,7 +242,7 @@ if __name__ == "__main__":
 
     # Note: height must be greater than width
 
-    ROWS = 20
+    ROWS = 25
     WIDTH = 800
     HEIGHT = 825
 

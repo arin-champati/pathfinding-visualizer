@@ -3,6 +3,11 @@ from config import Colors
 import pygame as pg
 from button import create_button
 
+def __create_dropdown(dropdown, entries):
+    results = []
+    for entry in entries:
+        pass
+
 def __alg_bar(window, dropdown, a_star, dijkstra, width, height):
 
     # return true if button is not pressed
@@ -107,7 +112,7 @@ def __board_bar(window, dropdown, new, erase, reset, width, height):
 
     # starting coordinates of dropdown menu
     x = (width / 5 + 0.5) * 2
-    w = width / 5
+    w = width / 5 - 1
     y = 0
     h = height - width
 
@@ -145,13 +150,37 @@ def __board_bar(window, dropdown, new, erase, reset, width, height):
 
     return dropdown, new, erase, reset
 
+def result(window, time, distance, width, height):
+    # starting coordinates of dropdown menu
+    x = (width / 5) * 3 + 1
+    w = width / 5 
+    y = 0
+    h = height - width
+    """
+    if not(time and distance):
+        # Static button
+        create_button(window, lambda: "", lambda: "", 
+        width/48, f"", Colors.DARK_BLUE, Colors.DARK_BLUE, x, y, w, h)
 
-def menu(window, dropdown_alg, a_star, dijkstra, dropdown_metric, distance, time, dropdown_board, new, erase, reset, width, height): 
+    else:
+    """
+    time = round(time, 3)
+    distance = round(distance, 0)
+
+    # Static button
+    create_button(window, lambda: "", lambda: "", 
+    width/72, f"Time: {time}, Distance: {distance}", Colors.DARK_BLUE, Colors.DARK_BLUE, x, y, w, h)
+
+    return time, distance
+
+def menu(window, dropdown_alg, a_star, dijkstra, dropdown_metric, distance_metric, time_metric, dropdown_board, new, erase, reset, time, distance, width, height): 
+    time, distance = result(window, time, distance, width, height)
+    
     # If alg dropdown pressed then other
     if dropdown_alg == True and (dropdown_metric == False and dropdown_board == False):
         # Only allow one dropdown menu to be open at once
         dropdown_alg, a_star, dijkstra = __alg_bar(window, dropdown_alg, a_star, dijkstra, width, height)
-        dropdown_metric, distance, time = __metric_bar(window, dropdown_metric, distance, time, width, height)
+        dropdown_metric, distance_metric, time_metric = __metric_bar(window, dropdown_metric, distance_metric, time_metric, width, height)
         dropdown_board, new, erase, reset = __board_bar(window, dropdown_board, new, erase, reset, width, height)
         if dropdown_metric == True or dropdown_board == True:
             dropdown_alg = False
@@ -159,7 +188,7 @@ def menu(window, dropdown_alg, a_star, dijkstra, dropdown_metric, distance, time
     # If metric dropdown pressed then other
     elif dropdown_metric == True and (dropdown_alg == False and dropdown_board == False):
         dropdown_alg, a_star, dijkstra = __alg_bar(window, dropdown_alg, a_star, dijkstra, width, height)
-        dropdown_metric, distance, time = __metric_bar(window, dropdown_metric, distance, time, width, height)
+        dropdown_metric, distance_metric, time_metric = __metric_bar(window, dropdown_metric, distance_metric, time_metric, width, height)
         dropdown_board, new, erase, reset = __board_bar(window, dropdown_board, new, erase, reset, width, height)
         if dropdown_alg == True or dropdown_board == True:
             dropdown_metric = False
@@ -167,15 +196,14 @@ def menu(window, dropdown_alg, a_star, dijkstra, dropdown_metric, distance, time
     # If board dropdown pressed then other
     elif dropdown_board == True and (dropdown_metric == False and dropdown_alg == False):
         dropdown_alg, a_star, dijkstra = __alg_bar(window, dropdown_alg, a_star, dijkstra, width, height)
-        dropdown_metric, distance, time = __metric_bar(window, dropdown_metric, distance, time, width, height)
+        dropdown_metric, distance_metric, time_metric = __metric_bar(window, dropdown_metric, distance_metric, time_metric, width, height)
         dropdown_board, new, erase, reset = __board_bar(window, dropdown_board, new, erase, reset, width, height)
         if dropdown_alg == True or dropdown_metric == True:
             dropdown_board = False
 
     else:
         dropdown_alg, a_star, dijkstra = __alg_bar(window, dropdown_alg, a_star, dijkstra, width, height)
-        dropdown_metric, distance, time = __metric_bar(window, dropdown_metric, distance, time, width, height)
+        dropdown_metric, distance_metric, time_metric = __metric_bar(window, dropdown_metric, distance_metric, time_metric, width, height)
         dropdown_board, new, erase, reset = __board_bar(window, dropdown_board, new, erase, reset, width, height)
      
-
-    return dropdown_alg, a_star, dijkstra, dropdown_metric, distance, time, dropdown_board, new, erase, reset
+    return dropdown_alg, a_star, dijkstra, dropdown_metric, distance_metric, time_metric, dropdown_board, new, erase, reset, time, distance
