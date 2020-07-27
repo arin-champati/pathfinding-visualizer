@@ -5,7 +5,7 @@ class Colors:
     LIGHT_BLUE = (180, 210, 255)
     LIGHTER_BLUE = (102, 140, 191)
     DARK_BLUE = (41, 65, 97)
-    DARKER_BLUE = (19, 35, 55)
+    DARKER_BLUE = (35, 50, 85)
     YELLOW = (248, 236, 194)
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -24,3 +24,7 @@ class Fonts:
 class Speeds:
     HIGHWAY_SPEED = 75
     LOCAL_SPEED = 35
+
+class AlgorithmRender:
+    A_STAR_RENDER = 240
+    DIJKSATRA_RENDER = 10000
