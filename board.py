@@ -32,6 +32,9 @@ class Node:
     def render(self, window):
         return pg.draw.rect(window, self.color, (self.x, self.y, self.length, self.length))
     
+    def is_rendered(self):
+        return (self.is_start() or self.is_end() or self.is_wall())
+    
     def position(self):
         return self.row, self.col
     
@@ -53,10 +56,10 @@ class Node:
         self.color = Colors.LIGHT_PURPLE
 
     def is_wall(self):
-        return self.color == Colors.DARK_BLUE
+        return self.color == Colors.DARKER_BLUE
         
     def make_wall(self):
-        self.color = Colors.DARK_BLUE
+        self.color = Colors.DARKER_BLUE
     
     def make_path(self):
         self.color = Colors.DARK_PURPLE
@@ -129,7 +132,16 @@ def draw_board(window, menu, board, rows, width, height):
     draw_grid(window, rows, width, height)
     menu()
     pg.display.update()
-    pg.time.Clock().tick(120)
+
+# draw board with all of the nodes, grid lines, and also menu bar
+def draw_node(window, menu, board, nodes, rows, width, height):
+    for node in nodes:
+        #if node.is_rendered() == False:
+        node.render(window)
+
+    draw_grid(window, rows, width, height)
+    menu()
+    pg.display.update()
 
 # function to reset the board
 def reset(window, board, rows, width, height):

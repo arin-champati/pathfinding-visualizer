@@ -1,5 +1,4 @@
 import board as b
-import config
 from copy import deepcopy
 
 def new_board(rows, width, height):
