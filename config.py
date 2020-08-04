@@ -17,14 +17,19 @@ class Colors:
     LIGHT_GREY = (220, 220, 220)
     TURQOISE = (64, 224, 208)
 
+# Fonts
 class Fonts:
     BUTTON = 'freesansbold.ttf'
     HOME = 'freesansbold.ttf'
 
+# Node speeds
 class Speeds:
     HIGHWAY_SPEED = 75
     LOCAL_SPEED = 35
 
+# Render speeds for the algorithms
 class AlgorithmRender:
     A_STAR_RENDER = 240
     DIJKSATRA_RENDER = 10000
+    BFS_RENDER = 10000
+    DFS_RENDER = 10000
