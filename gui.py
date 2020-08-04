@@ -15,6 +15,8 @@ from button import create_button
 import board_functionality as bf
 from functools import partial
 import os
+from multiprocessing import Process
+import sys
 
 # creates an intro screen that shows for a max of 10 seconds
 def start_screen(window, width, button_offset):
@@ -95,12 +97,14 @@ def main(window, rows, width, height):
 
     # algorith dropdown
     ALG_DROPDOWN = False
-    A_STAR = False
+    A_STAR = True # default to A_STAR
     DIJKSTRA = False
+    BFS = False
+    DFS = False
 
     # metric dropdown
     METRIC_DROPDOWN = False
-    DISTANCE_METRIC = True
+    DISTANCE_METRIC = True # default to DISTANCE
     TIME_METRIC = False
 
     # board dropdown
@@ -119,6 +123,7 @@ def main(window, rows, width, height):
     FLAGS = DOUBLEBUF
 
     MOUSEUP = None
+    MOUSEDOWN = False
 
     while RUNNING:
         pg.time.Clock().tick(10000)
@@ -126,16 +131,16 @@ def main(window, rows, width, height):
         ALG_STARTED = False
         
         # draw the GUI
-        draw = partial(b.draw_board, WINDOW, lambda: menu(WINDOW, MOUSEUP, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, 
+        draw = partial(b.draw_board, WINDOW, lambda: menu(WINDOW, MOUSEUP, ALG_DROPDOWN, A_STAR, DIJKSTRA, BFS, DFS, METRIC_DROPDOWN, 
         DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE, WIDTH, HEIGHT), board, ROWS, WIDTH, HEIGHT)
 
-        menu_func = partial(menu, WINDOW, MOUSEUP, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, 
+        menu_func = partial(menu, WINDOW, MOUSEUP, ALG_DROPDOWN, A_STAR, DIJKSTRA, BFS, DFS, METRIC_DROPDOWN, 
         DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE, WIDTH, HEIGHT)
 
         draw()
 
         # get the states of important STATUS variables
-        ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE = menu(WINDOW, MOUSEUP, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, 
+        ALG_DROPDOWN, A_STAR, DIJKSTRA, BFS, DFS, METRIC_DROPDOWN, DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE = menu(WINDOW, MOUSEUP, ALG_DROPDOWN, A_STAR, DIJKSTRA, BFS, DFS, METRIC_DROPDOWN, 
         DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE, WIDTH, HEIGHT)
 
         if NEW == True:
@@ -147,7 +152,8 @@ def main(window, rows, width, height):
         if RESET == True:
             RESET, ALG_STARTED, ALG_FINISHED, board, old_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
 
-        MOUSEUP = None
+        MOUSEUP = False
+        MOUSEDOWN = False
         
         for event in pg.event.get():
             # quit if prompted
@@ -161,12 +167,14 @@ def main(window, rows, width, height):
             
             if event.type == MOUSEBUTTONUP and event.button == 1:
                 MOUSEUP = MOUSEBUTTONUP
-        
+            if event.type == MOUSEBUTTONDOWN:
+                MOUSEDOWN = MOUSEBUTTONDOWN                
+                        
             # only get position of mouse if pressed and the menus are closed
-            if pg.mouse.get_pressed():
+            if pg.mouse.get_pressed():   
+                position = pg.mouse.get_pos()
 
-                if (ALG_DROPDOWN != True and METRIC_DROPDOWN != True and BOARD_DROPDOWN != True):
-                    position = pg.mouse.get_pos()
+                if (WINDOW.get_at(position) != Colors.DARK_BLUE and WINDOW.get_at(position) != Colors.LIGHTER_BLUE):
                     _, y = position
 
                     # make sure we are not in the navigation area
@@ -176,12 +184,9 @@ def main(window, rows, width, height):
                     row, col = b.mouse_position(position, ROWS, WIDTH, HEIGHT)
                     if row < ROWS and col < ROWS:
                         node = board[row][col]
-
+                                                            
                     # LEFT click
-                    if pg.mouse.get_pressed()[0]:
-                        if ALG_FINISHED:
-                            RESET, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
-                                
+                    if pg.mouse.get_pressed()[0]: 
                         if not ALG_FINISHED:
                             if not start_node and node != end_node:
                                 start_node = node
@@ -193,18 +198,22 @@ def main(window, rows, width, height):
 
                             elif node != start_node and node != end_node:
                                 node.make_wall()
-                    
+
+                        if ALG_FINISHED and node != end_node:
+                            RESET, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
+                      
+                            
                     # RIGHT click
                     if pg.mouse.get_pressed()[2]:
-                        if ALG_FINISHED:
-                            RESET, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
-                                
                         if not ALG_FINISHED:
                             node.undo()
                             if node == start_node:
                                 start_node = None
                             if node == end_node:
                                 end_node = None
+
+                        if ALG_FINISHED and node != end_node:
+                            RESET, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
 
             if event.type == pg.KEYDOWN:
 
@@ -236,47 +245,68 @@ def main(window, rows, width, height):
                     RESET, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
 
                 if ALG_FINISHED:
-                    RESET, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
-                    draw = partial(b.draw_board, WINDOW, lambda: menu(WINDOW, MOUSEUP, ALG_DROPDOWN, A_STAR, DIJKSTRA, METRIC_DROPDOWN, 
-                    DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE, WIDTH, HEIGHT), board, ROWS, WIDTH, HEIGHT)
+                    if event.key == K_SPACE:
+                        RESET, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
+
+                        draw = partial(b.draw_board, WINDOW, lambda: menu(WINDOW, MOUSEUP, ALG_DROPDOWN, A_STAR, DIJKSTRA, BFS, DFS, METRIC_DROPDOWN, 
+                        DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE, WIDTH, HEIGHT), board, ROWS, WIDTH, HEIGHT)
+
+                        draw()
+                        
+                    else:
+                        RESET, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
+                        draw = partial(b.draw_board, WINDOW, lambda: menu(WINDOW, MOUSEUP, ALG_DROPDOWN, A_STAR, DIJKSTRA, BFS, DFS, METRIC_DROPDOWN, 
+                        DISTANCE_METRIC, TIME_METRIC, BOARD_DROPDOWN, NEW, ERASE, RESET, TIME, DISTANCE, WIDTH, HEIGHT), board, ROWS, WIDTH, HEIGHT)
+
+                        draw()
+                        continue
+
+                # A STAR
+
+                # Default a star to be on distance metric. If a pressed, or space pressed, run the algorithm with distance metric.
+                if (((event.key == pg.K_a or (event.key == pg.K_SPACE and A_STAR == True)) and DISTANCE_METRIC == True)) and not ALG_STARTED and not ALG_FINISHED:
+                    boundary_board = deepcopy(board)
+
+                    if start_node and end_node:
+                        ALG_FINISHED, TIME, DISTANCE = pf.a_star(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT, "distance")
+
+                # If a or space is pressed and time is the metric, run a star with time metric.
+                if (((event.key == pg.K_a or (event.key == pg.K_SPACE and A_STAR == True)) and TIME_METRIC == True)) and not ALG_STARTED and not ALG_FINISHED:
+                    boundary_board = deepcopy(board)
                     
-                    draw()
+                    if start_node and end_node:
+                        ALG_FINISHED, TIME, DISTANCE = pf.a_star(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT, "time")
+                
+                # DIJKSTRA
 
-                # RUN A STAR
-
-                # when key a is pressed or space is pressed (and we have selected a star as our algorithm with distance as metric) (default to this setting if nothing selected)
-                # update the neighbors and run the algorithm
-                if (event.key == pg.K_a or (event.key == pg.K_SPACE and (A_STAR == True or DIJKSTRA == False) and (DISTANCE_METRIC == True or TIME_METRIC == False))) and not ALG_STARTED:
-                    if not ALG_FINISHED:
-                        boundary_board = deepcopy(board)
-
-                        if start_node and end_node:
-                            ALG_FINISHED, TIME, DISTANCE = pf.a_star(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT, "distance")
-
-                # when key s is pressed or space is pressed (and we have selected a star as our algorithm with time as metric)
-                # update the neighbors and run the algorithm
-                if (event.key == pg.K_s or (event.key == pg.K_SPACE and (A_STAR == True or DIJKSTRA == False) and (TIME_METRIC == True))) and not ALG_STARTED:
+                # Default dijkstra to be on distance metric. If d pressed, or space pressed, run the algorithm with distance metric.
+                if (((event.key == pg.K_d or (event.key == pg.K_SPACE and DIJKSTRA == True)) and DISTANCE_METRIC == True)) and not ALG_STARTED and not ALG_FINISHED:
                     boundary_board = deepcopy(board)
-                    if not ALG_FINISHED:
-                        if start_node and end_node:
-                            ALG_FINISHED, TIME, DISTANCE = pf.a_star(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT, "time")
 
-                if (event.key == pg.K_d or (event.key == pg.K_SPACE and (DIJKSTRA == True) and (DISTANCE_METRIC == True or TIME_METRIC == False))) and not ALG_STARTED:
-                    if not ALG_FINISHED:
-                        boundary_board = deepcopy(board)
+                    if start_node and end_node:
+                        ALG_FINISHED, TIME, DISTANCE = pf.dijkstra(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT, "distance")
 
-                        if start_node and end_node:
-                            ALG_FINISHED, TIME, DISTANCE = pf.dijkstra(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT, "distance")
-
-                # when key s is pressed or space is pressed (and we have selected a star as our algorithm with time as metric)
-                # update the neighbors and run the algorithm
-                if (event.key == pg.K_y or (event.key == pg.K_SPACE and (DIJKSTRA == True) and (TIME_METRIC == True))) and not ALG_STARTED:
+                # If d or space is pressed and time is the metric, run dijkstra with time metric.
+                if (((event.key == pg.K_d or (event.key == pg.K_SPACE and DIJKSTRA == True)) and TIME_METRIC == True)) and not ALG_STARTED and not ALG_FINISHED:
                     boundary_board = deepcopy(board)
-                    if not ALG_FINISHED:
-                        if start_node and end_node:
-                            ALG_FINISHED, TIME, DISTANCE = pf.dijkstra(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT, "time")
 
+                    if start_node and end_node:
+                        ALG_FINISHED, TIME, DISTANCE = pf.dijkstra(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT, "time")
+                
+                # Default bfs to be on distance metric. If b pressed, or space pressed, run the algorithm with distance metric.
+                if ((event.key == pg.K_b or (event.key == pg.K_SPACE and BFS == True)) and not ALG_STARTED and not ALG_FINISHED):
+                    boundary_board = deepcopy(board)
 
+                    if start_node and end_node:
+                        ALG_FINISHED, TIME, DISTANCE = pf.bfs(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT)
+                
+                # Default bfs to be on distance metric. If b pressed, or space pressed, run the algorithm with distance metric.
+                if ((event.key == pg.K_s or (event.key == pg.K_SPACE and DFS == True)) and not ALG_STARTED and not ALG_FINISHED):
+                    boundary_board = deepcopy(board)
+
+                    if start_node and end_node:
+                        ALG_FINISHED, TIME, DISTANCE = pf.dfs(WINDOW, lambda: draw(), lambda: menu_func(), board, start_node, end_node, ROWS, WIDTH, HEIGHT)
+                
        
     pg.quit()
     quit()

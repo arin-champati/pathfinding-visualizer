@@ -45,7 +45,7 @@ class Node:
     # nodes are identified by their color
     def is_start(self):
         return self.color == Colors.YELLOW
-
+    
     def make_start(self):
         self.color = Colors.YELLOW
     
@@ -136,17 +136,11 @@ def draw_board(window, menu, board, rows, width, height):
 # draw board with all of the nodes, grid lines, and also menu bar
 def draw_node(window, menu, board, nodes, rows, width, height):
     for node in nodes:
-        #if node.is_rendered() == False:
         node.render(window)
 
     draw_grid(window, rows, width, height)
     menu()
     pg.display.update()
-
-# function to reset the board
-def reset(window, board, rows, width, height):
-    board = initialize_board(rows, width, height)
-    draw_board(window, board, rows, width, height)
 
 # helper method to get row, col corresponding to mouse position
 def mouse_position(position, rows, width, height):
