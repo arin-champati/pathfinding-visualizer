@@ -1,12 +1,13 @@
-from queue import PriorityQueue, Queue
 import pygame as pg
 import board as b
 from board import Node
+from config import Speeds, AlgorithmRender
+from nav_bar import menu
+
+from queue import PriorityQueue, Queue
 from functools import partial
 import math
 from copy import deepcopy
-from config import Speeds, AlgorithmRender
-from nav_bar import menu
 
 # if alg is running, these functionalities should be allowed
 def __functionalities():

@@ -1,22 +1,18 @@
+import pygame as pg
+from pygame.locals import *
+
 import board as b
 from board import Node
-import button
-import pygame as pg
-import pathfinders as pf
-from queue import PriorityQueue
-import cProfile
-import time
-from copy import deepcopy, copy
-from pygame.locals import *
-import sys
-from config import Colors, Fonts
-from nav_bar import menu
-from button import create_button
 import board_functionality as bf
+from nav_bar import menu
+import pathfinders as pf
+
+import button
+from config import Colors, Fonts
+
+from queue import PriorityQueue
+from copy import deepcopy
 from functools import partial
-import os
-from multiprocessing import Process
-import sys
 
 # creates an intro screen that shows for a max of 10 seconds
 def start_screen(window, width, button_offset):
@@ -51,9 +47,9 @@ def start_screen(window, width, button_offset):
                     WINDOW = pg.display.set_mode((WIDTH, HEIGHT), flags)
 
         # create the main screen and text
-        window.fill(Colors.WHITE)
+        window.fill(Colors.TEXT)
         large_text = pg.font.Font(Fonts.HOME, int(width/7))
-        text_surf, text_rect = button.text_objects("Pathfinder", large_text, Colors.DARK_BLUE)
+        text_surf, text_rect = button.text_objects("Pathfinder", large_text, Colors.START_SCREEN_TEXT)
         text_rect.center = ((width/2),(width/2))
         window.blit(text_surf, text_rect)
 
@@ -74,7 +70,7 @@ def start_screen(window, width, button_offset):
         def ret_false():
             return False
     
-        INTRO = create_button(window, MOUSEUP, lambda: ret_true(), lambda: ret_false(), width/24, "START", Colors.LIGHTER_BLUE, Colors.DARK_BLUE, x, y, w, h)
+        INTRO = button.create_button(window, MOUSEUP, lambda: ret_true(), lambda: ret_false(), width/24, "START", Colors.BUTTON_HOVER, Colors.BUTTON_DEFAULT, x, y, w, h)
 
         pg.display.update()
 
@@ -174,7 +170,7 @@ def main(window, rows, width, height):
             if pg.mouse.get_pressed():   
                 position = pg.mouse.get_pos()
 
-                if (WINDOW.get_at(position) != Colors.DARK_BLUE and WINDOW.get_at(position) != Colors.LIGHTER_BLUE):
+                if (WINDOW.get_at(position) != Colors.BUTTON_DEFAULT and WINDOW.get_at(position) != Colors.BUTTON_HOVER):
                     _, y = position
 
                     # make sure we are not in the navigation area
@@ -330,9 +326,6 @@ if __name__ == "__main__":
     flags = DOUBLEBUF
     WINDOW = pg.display.set_mode((WIDTH, HEIGHT), flags)
     WINDOW.set_alpha(None)
-    #SDL_SetWindowSize(m_pWindow, m_width, m_height)
-    #SDL_SetWindowPosition(m_pWindow, SDL_WINDOWPOS_CENTERED, 
-    #SDL_WINDOWPOS_CENTERED)
 
     BUTTON_OFFSET = 150
     start_screen(WINDOW, WIDTH, BUTTON_OFFSET)

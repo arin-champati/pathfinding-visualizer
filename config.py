@@ -1,6 +1,5 @@
-# color codes
 class Colors:
-    RED = (255, 0, 0)
+    # Color scheme
     GREEN = (163, 197, 199)
     LIGHT_BLUE = (180, 210, 255)
     LIGHTER_BLUE = (102, 140, 191)
@@ -11,13 +10,34 @@ class Colors:
     BLACK = (0, 0, 0)
     DARK_PURPLE = (71, 41, 97)
     LIGHT_PURPLE = (218, 180, 250)
-    BURNT_ORANGE = (206, 140, 117)
-    SALMON = (250, 188, 180)
     GREY = (128, 128, 128)
     LIGHT_GREY = (220, 220, 220)
     TURQOISE = (64, 224, 208)
 
-# Fonts
+    # Change these variables to affect the color scheme in game
+
+    # Node colors
+    START = YELLOW
+    END = LIGHT_PURPLE
+    WALL = DARKER_BLUE
+    PATH = DARK_PURPLE # final path color
+    OPEN = GREEN
+    CLOSED = LIGHT_BLUE
+
+    LOCAL = WHITE # local speed color
+    HIGHWAY = LIGHT_GREY # highway speed color
+
+    # Window colors
+    GRID = GREY
+    WINDOW = DARKER_BLUE
+
+    # Text/button colors
+    BUTTON_HOVER = LIGHTER_BLUE
+    BUTTON_DEFAULT = DARK_BLUE
+    TEXT = WHITE
+    START_SCREEN_TEXT = DARK_BLUE
+
+
 class Fonts:
     BUTTON = 'freesansbold.ttf'
     HOME = 'freesansbold.ttf'
