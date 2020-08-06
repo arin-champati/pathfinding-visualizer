@@ -2,6 +2,13 @@ import board as b
 from copy import deepcopy
 
 def new_board(rows, width, height):
+    """
+    rows: (int) number of rows
+    width: (int) pixel width of board
+    height: (int) pixel height of board
+
+    summary: initializes a new board
+    """
     ALG_FINISHED = False
 
     board = b.initialize_board(rows, width, height)
@@ -16,6 +23,11 @@ def new_board(rows, width, height):
     return False, ALG_STARTED, ALG_FINISHED, board, old_board, start_node, end_node
 
 def erase_board(old_board):
+    """
+    old_board: (array) array of nodes
+
+    summary: erases all of the colored nodes on the board
+    """
     ALG_FINISHED = False
     board = deepcopy(old_board)
 
@@ -28,6 +40,17 @@ def erase_board(old_board):
     return False, ALG_STARTED, ALG_FINISHED, board, old_board, start_node, end_node
 
 def reset_board(alg_started, alg_finished, board, boundary_board, start_node, end_node):
+    """
+    alg_started: (boolean) boolean that is true if pathfinding algorithm is running
+    alg_finished: (boolean) boolean that is true if pathfinding algorithm has finished
+    board: (array) array of nodes
+    boundary_board: (array) array of nodes before pathfinding has been called
+    start_node: (node)
+    end_node: (node)
+
+    summary: function removes the algorithm visualization
+    """
+    # if the board and the start/end nodes exist, then reset the board
     if boundary_board is not None and start_node is not None and end_node is not None:
         ALG_FINISHED = False
 
@@ -45,7 +68,6 @@ def reset_board(alg_started, alg_finished, board, boundary_board, start_node, en
         boundary_board = None
 
         # STATUS variables
-        RUNNING = True
         ALG_STARTED = False
         return False, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node
 
