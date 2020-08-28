@@ -146,7 +146,7 @@ def main(window, rows, width, height):
             ERASE, ALG_STARTED, ALG_FINISHED, board, old_board, start_node, end_node = bf.erase_board(old_board)
         
         if RESET == True:
-            RESET, ALG_STARTED, ALG_FINISHED, board, old_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
+            RESET, ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node = bf.reset_board(ALG_STARTED, ALG_FINISHED, board, boundary_board, start_node, end_node)
 
         MOUSEUP = False
         MOUSEDOWN = False

@@ -11,6 +11,10 @@ from copy import deepcopy
 
 # if alg is running, these functionalities should be allowed
 def __functionalities():
+    """
+    summary: loops through pygame events and quits the program when q is pressed
+    or the x button
+    """
     for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
@@ -21,13 +25,26 @@ def __functionalities():
                     quit()
 
 def __update_neighbors(board):
-    # initialize the neighbors for the algorithm
+    """
+    board: (list) list of lists of nodes
+
+    summary: updates the neighbors of every node in the board
+    """
     for row in board:
         for node in row:
             node.update_neighbors(board) 
     
 # manhattan heuristic
-def __manhattan(node_1, node_2, width):
+def __manhattan(node_1, node_2, length):
+    """
+    node_1: (node) from node
+    node_2: (node) to node
+    length: (int) length of one node in pixels
+
+    output: (int) manhattan distance normalized by length of one step/max expected length
+    to break ties
+    summary: calculates manhattan distance between two nodes.
+    """
     point_1 = node_1.position()
     point_2 = node_2.position()
     x1, y1 = point_1
@@ -35,10 +52,19 @@ def __manhattan(node_1, node_2, width):
 
     dx = abs(x1 - x2)
     dy = abs(y1 - y2)
-    return (dx + dy) * (1 + 1/(width*width))
+
+    return (dx + dy) * (1 + (1 / (length*length)))
 
 # time heuristic
-def __time(node_1, node_2, width):
+def __time(node_1, node_2, length):
+    """
+    node_1: (node) from node
+    node_2: (node) to node
+    length: (int) length of one node in pixels
+
+    output: (int) time from 'from' node to 'to' node normalized by time of one step/max expected time
+    summary: calculates time between two nodes.
+    """    
     point_1 = node_1.position()
     point_2 = node_2.position()
     x1, y1 = point_1
@@ -51,16 +77,27 @@ def __time(node_1, node_2, width):
 
     min_speed = min(Speeds.HIGHWAY_SPEED, Speeds.LOCAL_SPEED)
     max_speed = max(Speeds.HIGHWAY_SPEED, Speeds.LOCAL_SPEED)
-    avg_speed = (Speeds.HIGHWAY_SPEED + Speeds.LOCAL_SPEED + node_1.speed + node_2.speed) / 4
+    avg_speed = (Speeds.HIGHWAY_SPEED + Speeds.LOCAL_SPEED) / 2
 
     # break ties as well
-    return (distance / avg_speed) * (1 + (1/max_speed) / (width*width))
+    return (distance / avg_speed) * (1 + ((1 / avg_speed) / (length*length / min_speed)))
 
 
 # once path is found, use this to find shortest
-def reconstruct_path(start_node, current, draw_path, rows):
+def reconstruct_path(start_node, end_node, draw_path, rows):
+    """
+    start_node: (node) beginning query of path
+    end_node: (node) end query of path
+    draw_path: function that renders the path
+    rows: (int) amount of rows on board
+
+    output: (float, float) time and distance it takes to get from start_node to end_node
+    summary: draws the calculated shortest path from start_node to end_node and returns
+    the time and distance it takes to get there
+    """
     speed = start_node.speed
     distance = 1
+    current = end_node
 
     while (current.parent != start_node):
         __functionalities()
@@ -76,13 +113,31 @@ def reconstruct_path(start_node, current, draw_path, rows):
 # all of these functions will take in as the first argument
 # an ambiguous function named draw(), which updates the window
 def a_star(window, draw_path, draw_menu, board, start_node, end_node, rows, width, height, heuristic):
+    """
+    window: (window) pygame window
+    draw_path: (function) function that draws path after it has been found
+    draw_menu: (function) function that renders the menu
+    board: (list of lists) N x N list of lists of nodes
+    start_node: (node) beginning query of path
+    end_node: (node) end query of path
+    rows: (int) amount of rows on board
+    width: (int) pixel width of board
+    height: (int) pixel height of board
+    heuristic: (string) either time or distance - heuristic that algorithm uses to find shortest path
+
+    output: True (alg_finished state), time, distance
+    summary: runs a star algorithm with either time or distance heuristic. Renders the open and closed
+    sets as the algorithm is running as well as the shortest path when it is finished.
+    """
     __update_neighbors(board)
 
     index = 0
+    length = width // rows
+
     if heuristic == "time":
-        function1 = partial(__time, start_node, end_node, width)
+        function1 = partial(__time, start_node, end_node, length)
     elif heuristic == "distance":
-        function1 = partial(__manhattan, start_node, end_node, width)
+        function1 = partial(__manhattan, start_node, end_node, length)
     
     # min priority queue to get node with min f constant time
     open_list = PriorityQueue()
@@ -120,9 +175,9 @@ def a_star(window, draw_path, draw_menu, board, start_node, end_node, rows, widt
             # update the results
             if temp_g_score < neighbor.g:
                 if heuristic is "time":
-                    function2 = partial(__time, neighbor, end_node, width)
+                    function2 = partial(__time, neighbor, end_node, length)
                 elif heuristic is "distance":
-                    function2 = partial(__manhattan, neighbor, end_node, width)
+                    function2 = partial(__manhattan, neighbor, end_node, length)
 
                 neighbor.parent = current
                 neighbor.g = temp_g_score
@@ -150,6 +205,22 @@ def a_star(window, draw_path, draw_menu, board, start_node, end_node, rows, widt
 
 
 def dijkstra(window, draw_path, draw_menu, board, start_node, end_node, rows, width, height, heuristic):
+    """
+    window: (window) pygame window
+    draw_path: (function) function that draws path after it has been found
+    draw_menu: (function) function that renders the menu
+    board: (list of lists) N x N list of lists of nodes
+    start_node: (node) beginning query of path
+    end_node: (node) end query of path
+    rows: (int) amount of rows on board
+    width: (int) pixel width of board
+    height: (int) pixel height of board
+    heuristic: (string) either time or distance - heuristic that algorithm uses to find shortest path
+
+    output: True (alg_finished state), time, distance
+    summary: runs dijkstra's algorithm with either time or distance heuristic. Renders the open and closed
+    sets as the algorithm is running as well as the shortest path when it is finished.
+    """
     __update_neighbors(board)
 
     index = 0
@@ -213,6 +284,22 @@ def dijkstra(window, draw_path, draw_menu, board, start_node, end_node, rows, wi
     return True, 0, 0
 
 def bfs(window, draw_path, draw_menu, board, start_node, end_node, rows, width, height):
+    """
+    window: (window) pygame window
+    draw_path: (function) function that draws path after it has been found
+    draw_menu: (function) function that renders the menu
+    board: (list of lists) N x N list of lists of nodes
+    start_node: (node) beginning query of path
+    end_node: (node) end query of path
+    rows: (int) amount of rows on board
+    width: (int) pixel width of board
+    height: (int) pixel height of board
+
+    output: True (alg_finished state), time, distance
+    summary: runs bfs algorithm. Renders the open and closed
+    sets as the algorithm is running as well as the shortest path when it is finished.
+    """
+
     __update_neighbors(board)
 
     open_list = Queue()
@@ -252,6 +339,22 @@ def bfs(window, draw_path, draw_menu, board, start_node, end_node, rows, width, 
     return True, 0, 0
 
 def __dfs_helper(window, draw_path, draw_menu, board, visited, unrendered_neighbors, current, start_node, end_node, rows, width, height):
+    """
+    window: (window) pygame window
+    draw_path: (function) function that draws path after it has been found
+    draw_menu: (function) function that renders the menu
+    board: (list of lists) N x N list of lists of nodes
+    visited: (list) nodes that have been visited by algorithm
+    unrendered_neighbors: (list) list of the unrendered neighbors of current node
+    current: (node) current node
+    start_node: (node) beginning query of path
+    end_node: (node) end query of path
+    rows: (int) amount of rows on board
+    width: (int) pixel width of board
+    height: (int) pixel height of board
+
+    output: (boolean) if algorithm has found path
+    """
     __functionalities()
 
     if current not in visited:
@@ -280,6 +383,22 @@ def __dfs_helper(window, draw_path, draw_menu, board, visited, unrendered_neighb
     return False
 
 def dfs(window, draw_path, draw_menu, board, start_node, end_node, rows, width, height):
+    """
+    window: (window) pygame window
+    draw_path: (function) function that draws path after it has been found
+    draw_menu: (function) function that renders the menu
+    board: (list of lists) N x N list of lists of nodes
+    start_node: (node) beginning query of path
+    end_node: (node) end query of path
+    rows: (int) amount of rows on board
+    width: (int) pixel width of board
+    height: (int) pixel height of board
+
+    output: True (alg_finished state), time, distance
+    summary: runs dfs algorithm. Renders the visited set as the algorithm is running 
+    as well as the shortest path when it is finished.
+    """
+
     __update_neighbors(board)
     visited = set()
     unrendered_neighbors = []
