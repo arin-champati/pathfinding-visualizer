@@ -354,6 +354,7 @@ def __dfs_helper(window, draw_path, draw_menu, board, visited, unrendered_neighb
     height: (int) pixel height of board
 
     output: (boolean) if algorithm has found path
+    summary: runs dfs on the board and stops once path is found
     """
     __functionalities()
 
