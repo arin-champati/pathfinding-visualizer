@@ -85,6 +85,16 @@ def __alg_bar(window, button_event, dropdown, a_star, dijkstra, bfs, dfs, width,
     """
     window: (window) pygame window
     button_event: (pygame event) pygame event that is either MOUSEBUTTONDOWN or MOUSEBUTTON UP
+    dropdown: (boolean) true if alg bar dropdown is being rendered
+    a_star: (boolean) true if a_star algorithm has been selected
+    dijkstra: (boolean) true if dijkstra's algorithm has been selected
+    bfs: (boolean) true if bfs has been selected
+    dfs: (boolean) true if dfs has been selected
+    width: (int) width of window in pixels
+    height: (int) height of window in pixels
+
+    output: (booleans) updataed boolean results (dropdown, a_star, dijkstra, bfs, dfs)
+    summary: client for __create_dropdown. creates dropdown and updates the values
     """
     # starting coordinates of dropdown menu
     x = 0
@@ -106,6 +116,18 @@ def __alg_bar(window, button_event, dropdown, a_star, dijkstra, bfs, dfs, width,
     
 
 def __metric_bar(window, button_event, dropdown, distance, time, width, height):
+    """
+    window: (window) pygame window
+    button_event: (pygame event) pygame event that is either MOUSEBUTTONDOWN or MOUSEBUTTON UP
+    dropdown: (boolean) true if metric bar dropdown is being rendered
+    distance: (boolean) true if distance metric has been selected
+    time: (boolean) true if time metric has been selected
+    width: (int) width of window in pixels
+    height: (int) height of window in pixels
+
+    output: (booleans) updataed boolean results (dropdown, distance, time)
+    summary: client for __create_dropdown. creates dropdown and updates the values
+    """
     # starting coordinates of dropdown menu
     x = width / 5 + 1
     w = width / 5 - 1
@@ -123,6 +145,19 @@ def __metric_bar(window, button_event, dropdown, distance, time, width, height):
     return results[0], results[1], results[2]
 
 def __board_bar(window, button_event, dropdown, new, erase, reset, width, height):
+    """
+    window: (window) pygame window
+    button_event: (pygame event) pygame event that is either MOUSEBUTTONDOWN or MOUSEBUTTON UP
+    dropdown: (boolean) true if board bar dropdown is being rendered
+    new: (boolean) true if new board has been selected
+    erase: (boolean) true if erase board has been selected
+    reset: (boolean) true if reset board has been selected
+    width: (int) width of window in pixels
+    height: (int) height of window in pixels
+
+    output: (booleans) updataed boolean results (dropdown, new, erase, reset)
+    summary: client for __create_dropdown. creates dropdown and updates the values
+    """
     # starting coordinates of dropdown menu
     x = (width / 5) * 2 + 1
     w = width / 5 - 1
@@ -142,6 +177,16 @@ def __board_bar(window, button_event, dropdown, new, erase, reset, width, height
 
 
 def time_result(window, button_event, time, width, height):
+    """
+    window: (window) pygame window
+    button_event: (pygame event) pygame event that is either MOUSEBUTTONDOWN or MOUSEBUTTON UP
+    time: (float) the path's time, based off the speed of the nodes and distance of the path
+    width: (int) width of window in pixels
+    height: (int) height of window in pixels
+
+    output: (int) updataed time
+    summary: creates a static button and updates the time displayed on the button
+    """
     # starting coordinates of dropdown menu
     x = (width / 5) * 3 + 1
     w = width / 5 - 1
@@ -157,6 +202,16 @@ def time_result(window, button_event, time, width, height):
     return time
 
 def distance_result(window, button_event, distance, width, height):
+    """
+    window: (window) pygame window
+    button_event: (pygame event) pygame event that is either MOUSEBUTTONDOWN or MOUSEBUTTON UP
+    distance: (float) the path's distance
+    width: (int) width of window in pixels
+    height: (int) height of window in pixels
+
+    output: (int) updataed distance
+    summary: creates a static button and updates the distance displayed on the button
+    """
     # starting coordinates of dropdown menu
     x = (width / 5) * 4 + 1
     w = width /5
@@ -172,6 +227,37 @@ def distance_result(window, button_event, distance, width, height):
     return distance
 
 def menu(window, button_event, dropdown_alg, a_star, dijkstra, bfs, dfs, dropdown_metric, distance_metric, time_metric, dropdown_board, new, erase, reset, time, distance, width, height): 
+    """
+    window: (window) pygame window
+    button_event: (pygame event) pygame event that is either MOUSEBUTTONDOWN or MOUSEBUTTON UP
+    dropdown_alg: (boolean) true if alg bar dropdown is being rendered
+    a_star: (boolean) true if a_star algorithm has been selected
+    dijkstra: (boolean) true if dijkstra's algorithm has been selected
+    bfs: (boolean) true if bfs has been selected
+    dfs: (boolean) true if dfs has been selected
+
+    dropdown_metric: (boolean) true if metric bar dropdown is being rendered
+    distance_metric: (boolean) true if distance metric has been selected
+    time_metric: (boolean) true if time metric has been selected
+
+    dropdown_board: (boolean) true if board bar dropdown is being rendered
+    new: (boolean) true if new board has been selected
+    erase: (boolean) true if erase board has been selected
+    reset: (boolean) true if reset board has been selected
+
+    time: (float) the path's time, based off the speed of the nodes and distance of the path
+    distance: (float) the path's distance
+
+    width: (int) width of window in pixels
+    height: (int) height of window in pixels
+
+    output: (booleans) updataed boolean results (dropdown_alg, a_star, dijkstra, bfs, dfs, dropdown_metric, distance_metric, 
+    time_metric, dropdown_board, new, erase, reset, time, distance)
+
+    summary: client for every function in this module. Creates the navigation bar that includes the algorithm dropdown, metric
+    dropdown, board dropdown, time button, and distance button. It updates every one of these values based off user input
+    and input status variables. 
+    """
     
     time = time_result(window, button_event, time, width, height)
     distance = distance_result(window, button_event, distance, width, height)

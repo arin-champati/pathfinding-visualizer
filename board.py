@@ -28,7 +28,6 @@ def initialize_board(rows, width, height):
 
     summary: initializes a row x row board filled with nodes that have random highway states
     """
-
     length = width // rows
     diff = height - width
     board = []
@@ -44,6 +43,7 @@ def draw_board(window, menu, board, rows, width, height):
     """
     window: (pygame window)
     menu: (lambda function) function that draws the menu bar
+    board: (list) list of lists of nodes
     rows: (int) number of rows
     width: (int) pixel width of board
     height: (int) pixel height of board
@@ -65,6 +65,7 @@ def draw_node(window, menu, board, nodes, rows, width, height):
     """
     window: (pygame window)
     menu: (lambda function) function that draws the menu bar
+    board: (list) list of lists of nodes
     rows: (int) number of rows
     width: (int) pixel width of board
     height: (int) pixel height of board

@@ -24,7 +24,7 @@ def new_board(rows, width, height):
 
 def erase_board(old_board):
     """
-    old_board: (array) array of nodes
+    old_board: (list) list of lists of nodes
 
     summary: erases all of the colored nodes on the board
     """
@@ -43,8 +43,8 @@ def reset_board(alg_started, alg_finished, board, boundary_board, start_node, en
     """
     alg_started: (boolean) boolean that is true if pathfinding algorithm is running
     alg_finished: (boolean) boolean that is true if pathfinding algorithm has finished
-    board: (array) array of nodes
-    boundary_board: (array) array of nodes before pathfinding has been called
+    board: (list) list of lists of nodes
+    boundary_board: (list) list of lists of nodes before pathfinding has been called
     start_node: (node)
     end_node: (node)
 
