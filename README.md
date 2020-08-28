@@ -10,6 +10,6 @@ This project features four basic pathfinding algorithms: a*, dijkstra, BFS, and 
 ## Code Design
 The use of global variables for menu status, algorithm status, and results, would declutter the code and allow future additions to be even simpler than they already are. In the future, I will make these variables global, but for now, they are all passed in as arguments.
 
-### Visual Flexibility
+#### Visual Flexibility
 The screen can be resized from the main method, and the board can have added rows as an argument as well. There is a config file that allows the color scheme to change, the speeds of nodes to change, the font, render speeds, etc. 
  
