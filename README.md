@@ -1,6 +1,9 @@
 # Pathfinding Visualizer
 A PyGame project that allows you to visualize a pathfinding algorithm in real-time.
 
+## How to Run
+Download the code from this repository and run gui.py to view the pathfinding visualizer window. 
+
 ## Features
 #### Algorithms
 This project features four basic pathfinding algorithms: a*, dijkstra, BFS, and DFS. The heuristics for a* and dijkstra are either the manhattan distance or time. Both of them break ties by normalizing with (unit path length / max expected path length). The time heuristic does not guarantee a path with the shortest amount of time, but it consistently outperforms manhattan distance. Note, in this case, because the unit distance is constant (1), BFS and dijstra w/manhattan distance perform the exact same. The performance of the algorithm (time, distance) is displayed on the top right.
